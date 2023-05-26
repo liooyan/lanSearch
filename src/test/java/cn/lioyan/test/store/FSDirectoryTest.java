@@ -19,7 +19,12 @@ public class FSDirectoryTest {
         NIOFSDirectory niofsDirectory = new NIOFSDirectory(Paths.get("C:\\work\\idea_work\\lanSearch\\target\\test"));
 
         IndexOutput tempOutput = niofsDirectory.createTempOutput("asd", "asd", null);
-        tempOutput.writeString("asdadafffa");
+        tempOutput.writeString("asdadafffa所发生的");
         tempOutput.close();
+
+
+        IndexOutput asdaff = niofsDirectory.createOutput("asdaff", null);
+        asdaff.writeString("asdadafffa所发生的");
+        asdaff.close();
     }
 }

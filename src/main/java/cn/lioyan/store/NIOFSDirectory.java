@@ -14,10 +14,6 @@ public class NIOFSDirectory extends FSDirectory {
         super(directory);
     }
 
-    @Override
-    public IndexOutput createOutput(String name, IOContext context) throws IOException {
-        return null;
-    }
 
     @Override
     public void rename(String source, String dest) throws IOException {

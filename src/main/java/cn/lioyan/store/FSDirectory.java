@@ -55,6 +55,18 @@ public abstract class FSDirectory implements Directory {
     }
 
     @Override
+    public IndexOutput createOutput(String name, IOContext context) throws IOException {
+        ensureOpen();
+        maybeDeletePendingFiles();
+        // If this file was pending delete, we are now bringing it back to life:
+        if (pendingDeletes.remove(name)) {
+            privateDeleteFile(name, true); // try again to delete it - this is best effort
+            pendingDeletes.remove(name); // watch out - if the delete fails it put
+        }
+        return new FSIndexOutput(name);
+    }
+
+    @Override
     public void deleteFile(String name) throws IOException {
         if (pendingDeletes.contains(name)) {
             throw new NoSuchFileException("file \"" + name + "\" is already pending delete");
