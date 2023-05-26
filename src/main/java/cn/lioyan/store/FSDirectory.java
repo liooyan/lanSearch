@@ -1,6 +1,7 @@
 package cn.lioyan.store;
 
 import java.io.FileNotFoundException;
+import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.*;
@@ -25,8 +26,11 @@ public abstract class FSDirectory implements Directory {
     private final AtomicLong nextTempFileCounter = new AtomicLong();
     protected final Path directory;
 
-    protected FSDirectory(Path directory) {
-        this.directory = directory;
+    protected FSDirectory(Path path)throws IOException {
+        if (!Files.isDirectory(path)) {
+            Files.createDirectories(path);  // create directory, if it doesn't exist
+        }
+        this.directory = path;
     }
 
 
@@ -35,20 +39,19 @@ public abstract class FSDirectory implements Directory {
         ensureOpen();
         maybeDeletePendingFiles();
         while (true) {
-//            try {
-//                String name = getTempFileName(prefix, suffix, nextTempFileCounter.getAndIncrement());
-//                if (pendingDeletes.contains(name)) {
-//                    continue;
-//                }
-//                return new FSIndexOutput(name,
-//                        StandardOpenOption.WRITE, StandardOpenOption.CREATE_NEW);
-//            } catch (FileAlreadyExistsException faee) {
-//                // Retry with next incremented name
-//                continue;
-//            }
+            try {
+                String name = getTempFileName(prefix, suffix, nextTempFileCounter.getAndIncrement());
+                if (pendingDeletes.contains(name)) {
+                    continue;
+                }
+                return new FSIndexOutput(name,
+                        StandardOpenOption.WRITE, StandardOpenOption.CREATE_NEW);
+            } catch (FileAlreadyExistsException faee) {
+                // Retry with next incremented name
+                continue;
+            }
         }
 
-//        return null;
     }
 
     @Override
@@ -140,6 +143,32 @@ public abstract class FSDirectory implements Directory {
         return IndexFileNames.segmentFileName(prefix, suffix + "_" + Long.toString(counter, Character.MAX_RADIX), "tmp");
     }
 
+     class FSIndexOutput extends OutputStreamIndexOutput{
+        /**
+         * The maximum chunk size is 8192 bytes, because file channel mallocs
+         * a native buffer outside of stack if the write buffer size is larger.
+         */
+        static final int CHUNK_SIZE = 8192;
+
+        public FSIndexOutput(String name) throws IOException {
+            this(name, StandardOpenOption.WRITE, StandardOpenOption.CREATE_NEW);
+        }
+
+        FSIndexOutput(String name, OpenOption... options) throws IOException {
+            super("FSIndexOutput(path=\"" + directory.resolve(name) + "\")", name, new FilterOutputStream(Files.newOutputStream(directory.resolve(name), options)) {
+                // This implementation ensures, that we never write more than CHUNK_SIZE bytes:
+                @Override
+                public void write(byte[] b, int offset, int length) throws IOException {
+                    while (length > 0) {
+                        final int chunk = Math.min(length, CHUNK_SIZE);
+                        out.write(b, offset, chunk);
+                        length -= chunk;
+                        offset += chunk;
+                    }
+                }
+            }, CHUNK_SIZE);
+        }
+    }
 
 
 }

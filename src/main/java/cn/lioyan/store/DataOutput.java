@@ -37,4 +37,27 @@ public interface DataOutput {
         }
         writeByte((byte) i);
     }
+
+
+    default void writeLong(long i) throws IOException {
+        writeInt((int) (i >> 32));
+        writeInt((int) i);
+    }
+    default void writeVLong(long i) throws IOException {
+        if (i < 0) {
+            throw new IllegalArgumentException("cannot write negative vLong (got: " + i + ")");
+        }
+        while ((i & ~0x7FL) != 0L) {
+            writeByte((byte)((i & 0x7FL) | 0x80L));
+            i >>>= 7;
+        }
+        writeByte((byte)i);
+    }
+    default void writeString(String s) throws IOException {
+        writeVInt(s.length());
+        writeBytes(s.getBytes(), 0, s.length());
+    }
+
+
+
 }
