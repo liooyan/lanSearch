@@ -29,7 +29,7 @@ public abstract class DataOutput {
         writeByte((byte)i);
 
     }
-
+    public abstract void writeBytes(byte[] b, int offset, int length) throws IOException;
 
     public final void writeZInt(int i) throws IOException {
         writeVInt(BitUtil.zigZagEncode(i));

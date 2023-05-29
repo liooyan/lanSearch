@@ -23,11 +23,11 @@ public interface Directory extends Closeable {
     long fileLength(String name) throws IOException;
 
 
-    DataOutput createOutput(String name, IOContext context) throws IOException;
+    IndexOutput createOutput(String name, IOContext context) throws IOException;
 
 
 
-    DataOutput createTempOutput(String prefix, String suffix, IOContext context) throws IOException;
+    IndexOutput createTempOutput(String prefix, String suffix, IOContext context) throws IOException;
 
 
 
