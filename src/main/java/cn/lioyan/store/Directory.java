@@ -1,5 +1,8 @@
 package cn.lioyan.store;
 
+import java.io.Closeable;
+import java.io.IOException;
+
 /**
  * 文件夹操作方法，需要实现
  * 1、获取当前文件夹内的文件
@@ -12,5 +15,34 @@ package cn.lioyan.store;
  * 8、添加锁
  *
  */
-public class Directory {
+public interface Directory extends Closeable {
+    String[] listAll() throws IOException;
+
+    void deleteFile(String name) throws IOException;
+
+    long fileLength(String name) throws IOException;
+
+
+    DataOutput createOutput(String name, IOContext context) throws IOException;
+
+
+
+    DataOutput createTempOutput(String prefix, String suffix, IOContext context) throws IOException;
+
+
+
+    void rename(String source, String dest) throws IOException;
+
+    IndexInput openInput(String name, IOContext context) throws IOException;
+
+
+     Lock obtainLock(String name) throws IOException;
+
+    void close() throws IOException;
+
+
+    void copyFrom(Directory from, String src, String dest, IOContext context) throws IOException;
+
+
+
 }
