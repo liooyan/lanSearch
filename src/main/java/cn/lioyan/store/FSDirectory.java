@@ -23,11 +23,18 @@ public  abstract class FSDirectory extends BaseDirectory{
     private final Set<String> pendingDeletes = Collections.newSetFromMap(new ConcurrentHashMap<String,Boolean>());
 
 
-
+    public Path getDirectory() {
+        ensureOpen();
+        return directory;
+    }
 
     private final AtomicInteger opsSinceLastDelete = new AtomicInteger();
 
     private final AtomicLong nextTempFileCounter = new AtomicLong();
+
+    protected FSDirectory(Path path) throws IOException {
+       this(path,FSLockFactory.getDefault());
+    }
     protected FSDirectory(Path path, LockFactory lockFactory) throws IOException {
         super(lockFactory);
         // If only read access is permitted, createDirectories fails even if the directory already exists.

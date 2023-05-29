@@ -23,7 +23,7 @@ public abstract class IndexInput extends DataInput implements Cloneable, Closeab
     }
     public abstract void seek(long pos) throws IOException;
 
-
+    public abstract long length();
 
     protected String getFullSliceDescription(String sliceDescription) {
         if (sliceDescription == null) {
