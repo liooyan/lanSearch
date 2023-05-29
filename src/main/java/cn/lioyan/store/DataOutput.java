@@ -35,4 +35,27 @@ public abstract class DataOutput {
         writeVInt(BitUtil.zigZagEncode(i));
     }
 
+
+    public void writeInt(int i) throws IOException {
+        writeByte((byte)(i >> 24));
+        writeByte((byte)(i >> 16));
+        writeByte((byte)(i >>  8));
+        writeByte((byte) i);
+    }
+
+    /** Writes a short as two bytes.
+     * @see DataInput#readShort()
+     */
+    public void writeShort(short i) throws IOException {
+        writeByte((byte)(i >>  8));
+        writeByte((byte) i);
+    }
+
+
+    public void writeLong(long i) throws IOException {
+        writeInt((int) (i >> 32));
+        writeInt((int) i);
+    }
+
+
 }

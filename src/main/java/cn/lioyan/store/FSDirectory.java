@@ -1,5 +1,7 @@
 package cn.lioyan.store;
 
+import cn.lioyan.index.IndexFileNames;
+
 import java.io.FileNotFoundException;
 import java.io.FilterOutputStream;
 import java.io.IOException;
@@ -7,9 +9,10 @@ import java.nio.file.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 
-public  class FSDirectory extends BaseDirectory{
+public  abstract class FSDirectory extends BaseDirectory{
 
 
     protected final Path directory;
@@ -24,7 +27,7 @@ public  class FSDirectory extends BaseDirectory{
 
     private final AtomicInteger opsSinceLastDelete = new AtomicInteger();
 
-
+    private final AtomicLong nextTempFileCounter = new AtomicLong();
     protected FSDirectory(Path path, LockFactory lockFactory) throws IOException {
         super(lockFactory);
         // If only read access is permitted, createDirectories fails even if the directory already exists.
@@ -74,11 +77,20 @@ public  class FSDirectory extends BaseDirectory{
 
     @Override
     public IndexOutput createTempOutput(String prefix, String suffix, IOContext context) throws IOException {
-        return null;
-    }
-    @Override
-    public IndexInput openInput(String name, IOContext context) throws IOException {
-        return null;
+        ensureOpen();
+        maybeDeletePendingFiles();
+        while (true) {
+            try {
+                String name = getTempFileName(prefix, suffix, nextTempFileCounter.getAndIncrement());
+                if (pendingDeletes.contains(name)) {
+                    continue;
+                }
+                return new FSIndexOutput(name,
+                        StandardOpenOption.WRITE, StandardOpenOption.CREATE_NEW);
+            } catch (FileAlreadyExistsException faee) {
+                // Retry with next incremented name
+            }
+        }
     }
 
 
@@ -96,10 +108,13 @@ public  class FSDirectory extends BaseDirectory{
         Files.move(directory.resolve(source), directory.resolve(dest), StandardCopyOption.ATOMIC_MOVE);
     }
 
-
+    protected static String getTempFileName(String prefix, String suffix, long counter) {
+        return IndexFileNames.segmentFileName(prefix, suffix + "_" + Long.toString(counter, Character.MAX_RADIX), "tmp");
+    }
     @Override
     public void close() throws IOException {
-
+        isOpen = false;
+        deletePendingFiles();
     }
 
     @Override

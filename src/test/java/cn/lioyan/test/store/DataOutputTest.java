@@ -14,6 +14,11 @@ public class DataOutputTest {
             public void writeByte(byte b) throws IOException {
                 System.out.println(b);
             }
+
+            @Override
+            public void writeBytes(byte[] b, int offset, int length) throws IOException {
+
+            }
         };
 
         dataOutput.writeVInt(0xff47);
