@@ -33,4 +33,6 @@ public abstract class IndexInput extends DataInput implements Cloneable, Closeab
             return toString() + " [slice=" + sliceDescription + "]";
         }
     }
+
+    public abstract long getFilePointer();
 }

@@ -28,10 +28,22 @@ public  abstract class FSDirectory extends BaseDirectory{
         return directory;
     }
 
+
+
     private final AtomicInteger opsSinceLastDelete = new AtomicInteger();
 
     private final AtomicLong nextTempFileCounter = new AtomicLong();
 
+
+    public static FSDirectory open(Path path) throws IOException {
+        return open(path, FSLockFactory.getDefault());
+    }
+
+    /** Just like {@link #open(Path)}, but allows you to
+     *  also specify a custom {@link LockFactory}. */
+    public static FSDirectory open(Path path, LockFactory lockFactory) throws IOException {
+        return new NIOFSDirectory(path, lockFactory);
+    }
     protected FSDirectory(Path path) throws IOException {
        this(path,FSLockFactory.getDefault());
     }
@@ -99,7 +111,11 @@ public  abstract class FSDirectory extends BaseDirectory{
             }
         }
     }
-
+    protected void ensureCanRead(String name) throws IOException {
+        if (pendingDeletes.contains(name)) {
+            throw new NoSuchFileException("file \"" + name + "\" is pending delete and cannot be opened for read");
+        }
+    }
 
     @Override
     public void rename(String source, String dest) throws IOException {
