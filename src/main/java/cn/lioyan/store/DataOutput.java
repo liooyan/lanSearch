@@ -4,9 +4,17 @@ import cn.lioyan.util.BitUtil;
 
 import java.io.IOException;
 
+/**
+ * 输出流的父类
+ */
 public abstract class DataOutput {
 
 
+    /**
+     * 写入一个byte 字符
+     * @param b 写入的内容
+     * @throws IOException
+     */
     public abstract void writeByte(byte b) throws IOException;
     /**
      * vint 类型，大端存储
@@ -21,6 +29,7 @@ public abstract class DataOutput {
         writeByte((byte)i);
 
     }
+
 
     public final void writeZInt(int i) throws IOException {
         writeVInt(BitUtil.zigZagEncode(i));
