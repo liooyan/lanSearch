@@ -31,6 +31,10 @@ public class BytesRef implements Comparable<BytesRef>, Cloneable, Iterable<Byte>
         this(bytes, 0, bytes.length);
     }
 
+    public BytesRef(String data) {
+        this(data.getBytes(), 0, data.length());
+    }
+
     public BytesRef(byte[] bytes, int offset, int length) {
         this.bytes = bytes;
         this.offset = offset;

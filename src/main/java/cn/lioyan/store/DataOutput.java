@@ -1,6 +1,7 @@
 package cn.lioyan.store;
 
 import cn.lioyan.util.BitUtil;
+import cn.lioyan.util.BytesRef;
 
 import java.io.IOException;
 
@@ -55,6 +56,11 @@ public abstract class DataOutput {
     public void writeLong(long i) throws IOException {
         writeInt((int) (i >> 32));
         writeInt((int) i);
+    }
+    public void writeString(String s) throws IOException {
+        final BytesRef utf8Result = new BytesRef(s);
+        writeVInt(utf8Result.getLength());
+        writeBytes(utf8Result.getBytes(), utf8Result.getOffset(), utf8Result.getLength());
     }
 
 

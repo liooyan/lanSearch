@@ -3,6 +3,7 @@ package cn.lioyan.store;
 import cn.lioyan.util.BitUtil;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 /**
  * 输入流的父类
@@ -95,6 +96,13 @@ public abstract class DataInput {
         } else {
             throw new IOException("Invalid vLong detected (negative values disallowed)");
         }
+    }
+
+    public String readString() throws IOException {
+        int length = readVInt();
+        final byte[] bytes = new byte[length];
+        readBytes(bytes, 0, length);
+        return new String(bytes, 0, length, StandardCharsets.UTF_8);
     }
 
 }
