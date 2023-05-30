@@ -43,12 +43,12 @@ public class BytesRef implements Comparable<BytesRef>, Cloneable, Iterable<Byte>
 
     @Override
     public int compareTo(BytesRef other) {
-        return Arrays.compareUnsigned(this.bytes, this.offset, this.offset + this.length,
+        return ArrayUtil.compareUnsigned(this.bytes, this.offset, this.offset + this.length,
                 other.bytes, other.offset, other.offset + other.length);
     }
 
     public boolean bytesEquals(BytesRef other) {
-        return Arrays.equals(this.bytes, this.offset, this.offset + this.length,
+        return ArrayUtil.equals(this.bytes, this.offset, this.offset + this.length,
                 other.bytes, other.offset, other.offset + other.length);
     }
 

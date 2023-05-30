@@ -2,6 +2,9 @@ package cn.lioyan.util;
 
 import cn.lioyan.search.DocIdSetIterator;
 
+import java.util.Arrays;
+
+
 /**
  * {@link FixedBitSet}
  * 一个固定长度的 {@link BitSet}
@@ -74,12 +77,53 @@ public class FixedBitSet  extends BitSet implements Bits, Accountable {
         return BASE_RAM_BYTES_USED + RamUsageEstimator.sizeOf(bits);
     }
 
+
+    public static FixedBitSet ensureCapacity(FixedBitSet bits, int numBits) {
+        if (numBits < bits.numBits) {
+            return bits;
+        } else {
+            // Depends on the ghost bits being clear!
+            // (Otherwise, they may become visible in the new instance)
+            int numWords = bits2words(numBits);
+            long[] arr = bits.getBits();
+            if (numWords >= arr.length) {
+                arr = ArrayUtil.grow(arr, numWords + 1);
+            }
+            return new FixedBitSet(arr, arr.length << 6);
+        }
+    }
+
+    public long[] getBits() {
+        return bits;
+    }
     @Override
     public void set(int index) {
         assert index >= 0 && index < numBits: "index=" + index + ", numBits=" + numBits;
         int wordNum = index >> 6;      // div 64
         long bitmask = 1L << index;
         bits[wordNum] |= bitmask;
+    }
+    public void set(int startIndex, int endIndex) {
+        assert startIndex >= 0 && startIndex < numBits : "startIndex=" + startIndex + ", numBits=" + numBits;
+        assert endIndex >= 0 && endIndex <= numBits : "endIndex=" + endIndex + ", numBits=" + numBits;
+        if (endIndex <= startIndex) {
+            return;
+        }
+
+        int startWord = startIndex >> 6;
+        int endWord = (endIndex-1) >> 6;
+
+        long startmask = -1L << startIndex;
+        long endmask = -1L >>> -endIndex;  // 64-(endIndex&0x3f) is the same as -endIndex since only the lowest 6 bits are used
+
+        if (startWord == endWord) {
+            bits[startWord] |= (startmask & endmask);
+            return;
+        }
+
+        bits[startWord] |= startmask;
+        Arrays.fill(bits, startWord+1, endWord, -1L);
+        bits[endWord] |= endmask;
     }
 
     @Override
