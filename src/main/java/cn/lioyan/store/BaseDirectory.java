@@ -16,6 +16,9 @@ public abstract class BaseDirectory implements Directory{
         this.lockFactory = lockFactory;
     }
 
+    public ChecksumIndexInput openChecksumInput(String name, IOContext context) throws IOException {
+        return new BufferedChecksumIndexInput(openInput(name, context));
+    }
     @Override
     public final Lock obtainLock(String name) throws IOException {
         return lockFactory.obtainLock(this, name);

@@ -22,6 +22,7 @@ public interface Directory extends Closeable {
 
     long fileLength(String name) throws IOException;
 
+    ChecksumIndexInput openChecksumInput(String name, IOContext context) throws IOException;
 
     IndexOutput createOutput(String name, IOContext context) throws IOException;
 

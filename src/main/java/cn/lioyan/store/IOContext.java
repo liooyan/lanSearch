@@ -5,6 +5,12 @@ public class IOContext {
         MERGE, READ, FLUSH, DEFAULT
     };
 
+    public static final IOContext READONCE = new IOContext(true);
+
+    private IOContext(boolean readOnce) {
+        this.context = Context.READ;
+    }
+
 
     public final Context context;
 

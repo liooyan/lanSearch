@@ -16,11 +16,11 @@ public class BytesRef implements Comparable<BytesRef>, Cloneable, Iterable<Byte>
     public static final byte[] EMPTY_BYTES = new byte[0];
 
 
-    private byte[] bytes;
+    public byte[] bytes;
 
-    private int offset;
+    public int offset;
 
-    private int length;
+    public int length;
 
 
     public BytesRef() {

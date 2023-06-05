@@ -1,6 +1,7 @@
 package cn.lioyan.util;
 
 import java.io.Closeable;
+import java.io.IOException;
 import java.util.Arrays;
 
 public class IOUtils {
@@ -43,5 +44,48 @@ public class IOUtils {
             first.addSuppressed(second);
         }
         return first;
+    }
+    public static void close(Closeable... objects) throws IOException {
+        close(Arrays.asList(objects));
+    }
+
+    /**
+     * Closes all given <tt>Closeable</tt>s.
+     * @see #close(Closeable...)
+     */
+    public static void close(Iterable<? extends Closeable> objects) throws IOException {
+        Throwable th = null;
+        for (Closeable object : objects) {
+            try {
+                if (object != null) {
+                    object.close();
+                }
+            } catch (Throwable t) {
+                th = useOrSuppress(th, t);
+            }
+        }
+
+        if (th != null) {
+            throw rethrowAlways(th);
+        }
+    }
+    public static Error rethrowAlways(Throwable th) throws IOException, RuntimeException {
+        if (th == null) {
+            throw new AssertionError("rethrow argument must not be null.");
+        }
+
+        if (th instanceof IOException) {
+            throw (IOException) th;
+        }
+
+        if (th instanceof RuntimeException) {
+            throw (RuntimeException) th;
+        }
+
+        if (th instanceof Error) {
+            throw (Error) th;
+        }
+
+        throw new RuntimeException(th);
     }
 }

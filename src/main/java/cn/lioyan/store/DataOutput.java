@@ -51,7 +51,30 @@ public abstract class DataOutput {
         writeByte((byte)(i >>  8));
         writeByte((byte) i);
     }
+    public final void writeVLong(long i) throws IOException {
+        if (i < 0) {
+            throw new IllegalArgumentException("cannot write negative vLong (got: " + i + ")");
+        }
+        writeSignedVLong(i);
+    }
 
+    // write a potentially negative vLong
+    private void writeSignedVLong(long i) throws IOException {
+        while ((i & ~0x7FL) != 0L) {
+            writeByte((byte)((i & 0x7FL) | 0x80L));
+            i >>>= 7;
+        }
+        writeByte((byte)i);
+    }
+
+    /**
+     * Write a {@link BitUtil#zigZagEncode(long) zig-zag}-encoded
+     * {@link #writeVLong(long) variable-length} long. Writes between one and ten
+     * bytes. This is typically useful to write small signed ints.
+     */
+    public final void writeZLong(long i) throws IOException {
+        writeSignedVLong(BitUtil.zigZagEncode(i));
+    }
 
     public void writeLong(long i) throws IOException {
         writeInt((int) (i >> 32));
