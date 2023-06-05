@@ -97,7 +97,7 @@ public class FieldsIndexWriter implements Closeable {
      * @param metaOut    输出的meta 值
      * @throws IOException
      */
-    void finish(int numDocs, long maxPointer, IndexOutput metaOut) throws IOException {
+    public  void finish(int numDocs, long maxPointer, IndexOutput metaOut) throws IOException {
         if (numDocs != totalDocs) {
             throw new IllegalStateException("Expected " + numDocs + " docs, but got " + totalDocs);
         }

@@ -35,7 +35,7 @@ public abstract class DataInput {
         for (int i = 0; i < 4; i++) {
             byte b = readByte();
             data += (data<< (i*7)) | (b & 0x7F);
-            if( (b & 0x80) != 0){
+            if( (b & 0x80) == 0){
                 break;
             }
         }
