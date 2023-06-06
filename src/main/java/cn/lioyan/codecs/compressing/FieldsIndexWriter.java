@@ -15,7 +15,7 @@ import java.io.IOException;
 
 /**
  * {@link FieldsIndexWriter}
- *
+ * 用于保存一对（2个数组）递增数据，
  * @author com.lioyan
  * @date 2023/5/30  16:38
  */

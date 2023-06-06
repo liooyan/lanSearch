@@ -44,6 +44,8 @@ public abstract class DataOutput {
         writeByte((byte) i);
     }
 
+    public abstract void writeBytes(byte[] b, int length);
+
     /** Writes a short as two bytes.
      * @see DataInput#readShort()
      */

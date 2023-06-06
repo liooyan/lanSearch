@@ -57,12 +57,6 @@ public class ArrayUtil {
         } else
             return array;
     }
-    public static long[] growExact(long[] array, int newLength) {
-        long[] copy = new long[newLength];
-        System.arraycopy(array, 0, copy, 0, array.length);
-        return copy;
-    }
-
     public static int oversize(int minTargetSize, int bytesPerElement) {
 
         if (minTargetSize < 0) {
@@ -116,6 +110,17 @@ public class ArrayUtil {
                     // odd (invalid?) size
                     return newSize;
             }
+    }
+
+    public static long[] growExact(long[] array, int newLength) {
+        long[] copy = new long[newLength];
+        System.arraycopy(array, 0, copy, 0, array.length);
+        return copy;
+    }
+    public static int[] growExact(int[] array, int newLength) {
+        int[] copy = new int[newLength];
+        System.arraycopy(array, 0, copy, 0, array.length);
+        return copy;
     }
 
 }
