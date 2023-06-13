@@ -2,10 +2,7 @@ package cn.lioyan.codecs.compressing;
 
 import cn.lioyan.codecs.CodecUtil;
 import cn.lioyan.codecs.StoredFieldsWriter;
-import cn.lioyan.index.FieldInfo;
-import cn.lioyan.index.IndexFileNames;
-import cn.lioyan.index.IndexableField;
-import cn.lioyan.index.SegmentInfo;
+import cn.lioyan.index.*;
 import cn.lioyan.store.*;
 import cn.lioyan.util.ArrayUtil;
 import cn.lioyan.util.BitUtil;
@@ -24,7 +21,7 @@ import static cn.lioyan.codecs.compressing.FieldsIndexWriter.VERSION_CURRENT;
  * @author com.lioyan
  * @date 2023/6/6  9:44
  */
-public abstract class CompressingStoredFieldsWriter extends StoredFieldsWriter {
+public  class CompressingStoredFieldsWriter extends StoredFieldsWriter {
 
     public static final String FIELDS_EXTENSION = "fdt";
     /**
@@ -186,6 +183,25 @@ public abstract class CompressingStoredFieldsWriter extends StoredFieldsWriter {
             }
         }
 
+    }
+
+    @Override
+    public void finish(FieldInfos fis, int numDocs) throws IOException {
+        if (numBufferedDocs > 0) {
+            flush(true);
+        } else {
+            assert bufferedDocs.size() == 0;
+        }
+        if (docBase != numDocs) {
+            throw new RuntimeException("Wrote " + docBase + " docs, finish called with numDocs=" + numDocs);
+        }
+        indexWriter.finish(numDocs, fieldsStream.getFilePointer(), metaStream);
+        metaStream.writeVLong(numChunks);
+        metaStream.writeVLong(numDirtyChunks);
+        metaStream.writeVLong(numDirtyDocs);
+        CodecUtil.writeFooter(metaStream);
+        CodecUtil.writeFooter(fieldsStream);
+        assert bufferedDocs.size() == 0;
     }
 
     /**
@@ -402,4 +418,20 @@ public abstract class CompressingStoredFieldsWriter extends StoredFieldsWriter {
     }
 
 
+    @Override
+    public long ramBytesUsed() {
+        return bufferedDocs.ramBytesUsed() + numStoredFields.length * Integer.BYTES + endOffsets.length * Integer.BYTES;
+    }
+
+    @Override
+    public void close() throws IOException {
+        try {
+            IOUtils.close(metaStream, fieldsStream, indexWriter);
+        } finally {
+            metaStream = null;
+            fieldsStream = null;
+            indexWriter = null;
+//            compressor = null;
+        }
+    }
 }

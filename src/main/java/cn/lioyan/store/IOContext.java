@@ -6,6 +6,7 @@ public class IOContext {
     };
 
     public static final IOContext READONCE = new IOContext(true);
+    public static final IOContext DEFAULT = new IOContext(Context.DEFAULT);
 
     private IOContext(boolean readOnce) {
         this.context = Context.READ;
