@@ -95,6 +95,9 @@ public class RamUsageEstimator {
 
         primitiveSizes = Collections.unmodifiableMap(primitiveSizesMap);
     }
+    public static long shallowSizeOf(Object[] arr) {
+        return alignObjectSize((long) NUM_BYTES_ARRAY_HEADER + (long) NUM_BYTES_OBJECT_REF * arr.length);
+    }
 
     /**
      * JVMs typically cache small longs. This tries to find out what the range is.

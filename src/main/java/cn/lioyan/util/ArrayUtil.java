@@ -1,8 +1,21 @@
 package cn.lioyan.util;
 
+import java.lang.reflect.Array;
+
 public class ArrayUtil {
 
     public static final int MAX_ARRAY_LENGTH = Integer.MAX_VALUE - RamUsageEstimator.NUM_BYTES_ARRAY_HEADER;
+
+    public static <T> T[] copyOfSubArray(T[] array, int from, int to) {
+        final int subLength = to - from;
+        final Class<? extends Object[]> type = array.getClass();
+        @SuppressWarnings("unchecked")
+        final T[] copy = (type == Object[].class)
+                ? (T[]) new Object[subLength]
+                : (T[]) Array.newInstance(type.getComponentType(), subLength);
+        System.arraycopy(array, from, copy, 0, subLength);
+        return copy;
+    }
 
     public static boolean equals(byte[] a,int aFrom,int aTo,byte[] b,int bFrom, int bTo) {
         checkFromToIndex(aFrom, aTo, a.length);
@@ -110,6 +123,15 @@ public class ArrayUtil {
                     // odd (invalid?) size
                     return newSize;
             }
+    }
+    public static <T> T[] growExact(T[] array, int newLength) {
+        Class<? extends Object[]> type = array.getClass();
+        @SuppressWarnings("unchecked")
+        T[] copy = (type == Object[].class)
+                ? (T[]) new Object[newLength]
+                : (T[]) Array.newInstance(type.getComponentType(), newLength);
+        System.arraycopy(array, 0, copy, 0, array.length);
+        return copy;
     }
 
     public static long[] growExact(long[] array, int newLength) {
