@@ -25,6 +25,12 @@ public class PackedLongValues extends LongValues implements Accountable {
 
     public static PackedLongValues.Builder packedBuilder(int pageSize, float acceptableOverheadRatio) {
         return new PackedLongValues.Builder(pageSize, acceptableOverheadRatio);
+    }  public static PackedLongValues.Builder deltaPackedBuilder(float acceptableOverheadRatio) {
+        return deltaPackedBuilder(DEFAULT_PAGE_SIZE, acceptableOverheadRatio);
+    }
+    public static PackedLongValues.Builder deltaPackedBuilder(int pageSize, float acceptableOverheadRatio) {
+       // return new DeltaPackedLongValues.Builder(pageSize, acceptableOverheadRatio);
+    return null;
     }
 
 
